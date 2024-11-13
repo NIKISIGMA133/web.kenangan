@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Kenangan - Album</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f1f1f1;
+      background-image: url('https://www.transparenttextures.com/patterns/asfalt-dark.png');
+      background-size: cover;
+      color: #333;
+      margin: 0;
+      padding: 0;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 50px auto;
+      padding: 20px;
+      background-color: white;
+      border-radius: 10px;
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+    }
+
+    h2 {
+      text-align: center;
+      color: #4caf50;
+      margin-bottom: 20px;
+    }
+
+    .media-box {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 15px;
+      justify-items: center;
+      margin-top: 20px;
+      opacity: 0;
+      transform: translateX(-100%);
+      transition: opacity 0.5s ease, transform 0.5s ease;
+    }
+
+    .media-box.active {
+      opacity: 1;
+      transform: translateX(0);
+    }
+
+    .media-item {
+      width: 100%;
+      max-width: 350px;
+      height: 250px;
+      border-radius: 8px;
+      border: 3px solid #ccc;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background-color: #f9f9f9;
+      flex-direction: column;
+    }
+
+    .media-item img {
+      width: 100%;
+      height: 80%;
+      object-fit: cover;
+      border-radius: 8px;
+    }
+
+    .media-item .date {
+      margin-top: 5px;
+      font-size: 12px;
+      color: #555;
+    }
+
+    .delete-btn {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      background-color: red;
+      color: white;
+      border: none;
+      padding: 5px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .nav-buttons, .add-photo {
+      text-align: center;
+      margin: 20px 0;
+    }
+
+    .nav-buttons button {
+      padding: 10px 15px;
+      background-color: #4caf50;
+      color: white;
+      font-size: 16px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      margin: 0 5px;
+      transition: background-color 0.3s;
+    }
+
+    .nav-buttons button:hover {
+      background-color: #45a049;
+    }
+
+    .add-photo input[type="file"] {
+      padding: 10px;
+      background-color: #e0e0e0;
+      color: #333;
+      font-size: 16px;
+      border: 2px solid #ccc;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Album Kenangan</h2>
+
+    <!-- Tombol untuk menambah foto -->
+    <div class="add-photo">
+      <input type="file" id="fileInput" accept="image/*" />
+    </div>
+
+    <!-- Kontainer untuk Media -->
+    <div class="media-box" id="mediaContainer"></div>
+
+    <!-- Tombol Navigasi -->
+    <div class="nav-buttons">
+      <button onclick="prevSlide()">Sebelumnya</button>
+      <button onclick="nextSlide()">Berikutnya</button>
+    </div>
+  </div>
+
+  <script>
+    let currentSlide = 0;
+    const maxPhotosPerSlide = 4;
+    let slides = [[]]; // Array untuk menampung slide, tiap slide maksimal 4 foto
+
+    // Fungsi untuk menyimpan slides ke localStorage
+    function saveSlidesToLocalStorage() {
+      localStorage.setItem("slides", JSON.stringify(slides));
+    }
+
+    // Fungsi untuk memuat slides dari localStorage function loadSlidesFromLocalStorage() {
+      const savedSlides = localStorage.getItem("slides");
+      if (savedSlides) {
+        slides = JSON.parse(savedSlides);
+        currentSlide = 0; // Reset ke slide pertama
+      }
+
+    // Modifikasi fungsi untuk menambahkan foto
+    document.getElementById("fileInput").addEventListener("change", function (event) {
+      const file = event.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          const currentDate = new Date().toLocaleDateString("id-ID");
+
+          if (slides[currentSlide].length < maxPhotosPerSlide) {
+            slides[currentSlide].push({ url: e.target.result, date: currentDate });
+          } else {
+            slides.push([{ url: e.target.result, date: currentDate }]);
+            currentSlide = slides.length - 1;
+          }
+          saveSlidesToLocalStorage(); // Simpan ke localStorage
+          loadMedia(); // Tampilkan slide
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+
+    // Modifikasi fungsi untuk menghapus foto
+    function deletePhoto(index) {
+      slides[currentSlide].splice(index, 1);
+      if (slides[currentSlide].length === 0 && slides.length > 1) {
+        slides.splice(currentSlide, 1); // Hapus slide kosong
+        currentSlide = Math.max(0, currentSlide - 1);
+      }
+      saveSlidesToLocalStorage(); // Simpan ke localStorage
+      loadMedia();
+    }
+
+    // Fungsi untuk menampilkan media
+    function loadMedia() {
+      const mediaContainer = document.getElementById("mediaContainer");
+      mediaContainer.innerHTML = ""; // Kosongkan kontainer
+
+      slides[currentSlide].forEach((photo, index) => {
+        const mediaItem = document.createElement("div");
+        mediaItem.className = "media-item";
+        mediaItem.innerHTML = `
+          <img src="${photo.url}" alt="Photo" />
+          <div class="date">${photo.date}</div>
+          <button class="delete-btn" onclick="deletePhoto(${index})">Hapus</button>
+        `;
+        mediaContainer.appendChild(mediaItem);
+      });
+
+      mediaContainer.classList.add("active");
+    }
+
+    // Fungsi untuk navigasi slide
+    function nextSlide() {
+      if (currentSlide < slides.length - 1) {
+        currentSlide++;
+        loadMedia();
+      }
+    }
+
+    function prevSlide() {
+      if (currentSlide > 0) {
+        currentSlide--;
+        loadMedia();
+      }
+    }
+
+    // Muat slide pertama saat halaman dibuka
+    document.addEventListener("DOMContentLoaded", function() {
+      loadSlidesFromLocalStorage(); // Muat dari localStorage
+      loadMedia(); // Tampilkan slide
+    });
+  </script>
+</body>
+</html>

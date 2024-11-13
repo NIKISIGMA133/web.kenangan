@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login & Register with Kenangan</title>
+  <style>
+    /* Reset beberapa styling dasar */
+    body, h2, input, button {
+      margin: 0;
+      padding: 0;
+      font-family: 'Arial', sans-serif;
+    }
+
+    body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      background: linear-gradient(135deg, #e3e3e3, #b7b7b7);
+      background-size: cover;
+    }
+
+    .form-container {
+      width: 100%;
+      max-width: 400px;
+      padding: 40px 20px;
+      background-color: white;
+      border-radius: 15px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    }
+
+    .form {
+      display: none;
+      opacity: 0;
+      transition: opacity 0.5s ease;
+    }
+
+    .form.active {
+      display: block;
+      opacity: 1;
+    }
+
+    h2 {
+      text-align: center;
+      color: #333;
+      margin-bottom: 20px;
+      font-size: 1.5rem;
+    }
+
+    input[type="text"], input[type="password"] {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 20px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 1rem;
+      box-sizing: border-box;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      background-color: #4CAF50;
+      color: white;
+      font-size: 1.1rem;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background-color 0.3s ease, transform 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #45a049;
+      transform: scale(1.05);
+    }
+
+    button:active {
+      transform: scale(0.98);
+    }
+
+    .form-switch {
+      text-align: center;
+      margin-top: 20px;
+      font-size: 0.9rem;
+    }
+
+    .form-switch a {
+      color: #4CAF50;
+      text-decoration: none;
+    }
+
+    .form-switch a:hover {
+      text-decoration: underline;
+    }
+
+  </style>
+</head>
+<body>
+
+  <div class="form-container">
+    <!-- Login Form -->
+    <div id="loginForm" class="form active">
+      <h2>Login</h2>
+      <input type="text" id="login-username" placeholder="Username" required>
+      <input type="password" id="login-password" placeholder="Password" required>
+      <button type="button" onclick="loginUser()">Login</button>
+      <div class="form-switch">
+        <p>Don't have an account? <a href="javascript:void(0)" onclick="showRegister()">Register here</a></p>
+      </div>
+    </div>
+
+    <!-- Register Form -->
+    <div id="registerForm" class="form">
+      <h2>Register</h2>
+      <input type="text" id="register-username" placeholder="Username" required>
+      <input type="password" id="register-password" placeholder="Password" required>
+      <button type="button" onclick="registerUser()">Register</button>
+      <div class="form-switch">
+        <p>Already have an account? <a href="javascript:void(0)" onclick="showLogin()">Login here</a></p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Fungsi untuk menampilkan Form Register
+    function showRegister() {
+      document.getElementById('loginForm').classList.remove('active');
+      document.getElementById('registerForm').classList.add('active');
+    }
+
+    // Fungsi untuk menampilkan Form Login
+    function showLogin() {
+      document.getElementById('registerForm').classList.remove('active');
+      document.getElementById('loginForm').classList.add('active');
+    }
+
+    // Fungsi untuk menangani Registrasi
+    function registerUser() {
+      const username = document.getElementById('register-username').value;
+      const password = document.getElementById('register-password').value;
+
+      // Simpan data registrasi ke localStorage
+      localStorage.setItem('username', username);
+      localStorage.setItem('password', password);
+
+      alert('Registration successful! Please log in.');
+      showLogin();
+    }
+
+    // Fungsi untuk menangani Login
+    function loginUser() {
+      const username = document.getElementById('login-username').value;
+      const password = document.getElementById('login-password').value;
+
+      // Ambil data login dari localStorage
+      const storedUsername = localStorage.getItem('username');
+      const storedPassword = localStorage.getItem('password');
+
+      // Verifikasi kredensial
+      if (username === storedUsername && password === storedPassword) {
+        alert('Login successful!');
+        window.location.href = "kenangan.html"; // Arahkan ke halaman Kenangan
+      } else {
+        alert('Invalid username or password.');
+      }
+    }
+  </script>
+
+</body>
+</html>
